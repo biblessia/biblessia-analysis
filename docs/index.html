@@ -367,6 +367,48 @@
             border-radius: 3px;
         }
 
+        /* Help Toggle */
+        .help-toggle {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .help-content {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+        }
+
+        .help-content p {
+            margin-bottom: 10px;
+        }
+
+        .help-content ul {
+            margin: 10px 0 10px 20px;
+        }
+
+        .help-content li {
+            margin-bottom: 6px;
+        }
+
+        .help-content strong {
+            color: var(--text-primary);
+        }
+
+        .help-example {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+        }
+
         /* Collapsible */
         .collapsible {
             cursor: pointer;
@@ -656,6 +698,17 @@
         <!-- 코호트별 리텐션 추이 섹션 -->
         <div class="section">
             <h2>코호트별 리텐션 추이</h2>
+            <button class="collapsible help-toggle" onclick="toggleCollapsible(this)">읽는 방법</button>
+            <div class="collapsible-content help-content">
+                <p><strong>코호트(Cohort)</strong>란 특정 주에 처음 방문한 사용자 그룹입니다.</p>
+                <ul>
+                    <li><strong>X축 (Sep 22, Oct 06...)</strong>: 각 코호트의 첫 방문 시점</li>
+                    <li><strong>Y축 (%)</strong>: 해당 코호트가 N주 후에 다시 돌아온 비율</li>
+                    <li><strong>Week 1 라인</strong>: 첫 방문 후 1주 뒤 재방문율</li>
+                    <li><strong>Week 2, 3, 4 라인</strong>: 각각 2주, 3주, 4주 뒤 재방문율</li>
+                </ul>
+                <p class="help-example">예) Dec 22 지점의 Week 1이 74% → 12월 22일 주에 처음 온 사용자 중 74%가 1주 후에도 활동</p>
+            </div>
             <div class="chart-container">
                 <canvas id="retentionChart"></canvas>
             </div>

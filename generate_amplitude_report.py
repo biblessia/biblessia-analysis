@@ -22,9 +22,9 @@ NAU_DATA = {
 }
 
 RETENTION_DATA = [
-    ["Segment", "Start Date", "Users", "Week 0", "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8", "Week 9", "Week 10", "Week 11", "Week 12", "Week 13", "Week 14"],
-    ["South Korea", "Overall", "Retained", 3779, 2182, 1436, 953, 801, 640, 534, 439, 362, 295, 175, 99, 81, 55, 37],
-    ["South Korea", "Overall", "Retained %", "100.0%", "64.06%", "53.17%", "42.62%", "38.4%", "33.32%", "29.77%", "27.05%", "26.23%", "27.19%", "25.89%", "27.42%", "27.65%", "25.11%", "25.34%"],
+    ["Segment", "Start Date", "Users", "Week 0", "Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8", "Week 9", "Week 10", "Week 11", "Week 12", "Week 13", "Week 14", "Week 15", "Week 16"],
+    ["South Korea", "Overall", "Retained", 3779, 2182, 1436, 953, 801, 640, 534, 439, 362, 295, 175, 99, 81, 55, 37, 14, 8],
+    ["South Korea", "Overall", "Retained %", "100.0%", "64.06%", "53.17%", "42.62%", "38.4%", "33.32%", "29.77%", "27.05%", "26.23%", "27.19%", "25.89%", "27.42%", "27.65%", "25.11%", "25.34%", "17.28%", "9.88%"],
     ["South Korea", "Jan 12, 2026", 62, 62],
     ["South Korea", "Jan 05, 2026", 373, 373, 162],
     ["South Korea", "Dec 29, 2025", 705, 705, 489, 316],
@@ -156,12 +156,33 @@ def create_retention_sheet(ws, data):
     ws['A1'].font = Font(bold=True, size=14)
     ws.merge_cells('A1:F1')
 
-    # 데이터 작성
-    for row_idx, row_data in enumerate(data, 3):
+    # 도움말 섹션
+    help_texts = [
+        "[ 읽는 방법 ]",
+        "• 각 행은 특정 주에 처음 방문한 사용자 그룹(코호트)입니다.",
+        "• Week 0: 첫 방문 주에 활동한 사용자 수 (항상 100%)",
+        "• Week 1, 2, 3...: 첫 방문 후 1주, 2주, 3주 뒤에 다시 돌아온 사용자 수",
+        "• Overall 행: 전체 코호트의 평균 리텐션율",
+        "",
+        "예) Dec 22, 2025 코호트가 Week 2에 306명 → 12월 22일 주에 처음 온 465명 중 306명(65.8%)이 2주 후에도 활동"
+    ]
+
+    help_start_row = 3
+    for i, text in enumerate(help_texts):
+        cell = ws.cell(row=help_start_row + i, column=1, value=text)
+        if i == 0:
+            cell.font = Font(bold=True, color="4472C4")
+        else:
+            cell.font = Font(color="666666")
+        ws.merge_cells(f'A{help_start_row + i}:G{help_start_row + i}')
+
+    # 데이터 작성 (도움말 아래로 이동)
+    data_start_row = help_start_row + len(help_texts) + 1
+    for row_idx, row_data in enumerate(data, data_start_row):
         for col_idx, value in enumerate(row_data, 1):
             cell = ws.cell(row=row_idx, column=col_idx, value=value)
             cell.border = BORDER
-            if row_idx == 3:  # 헤더
+            if row_idx == data_start_row:  # 헤더
                 cell.fill = HEADER_FILL
                 cell.font = HEADER_FONT
                 cell.alignment = Alignment(horizontal='center')
