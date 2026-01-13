@@ -115,11 +115,36 @@ python scripts/generate_html_report.py
 
 Edit 도구를 사용하여 각 placeholder를 교체합니다.
 
-### Step 8: 완료
+### Step 8: docs 폴더에 배포
 
-리포트 파일 경로를 사용자에게 알립니다:
-- 위치: `reports/analysis_report_YYYY-MM-DD.html`
-- 브라우저에서 열어 확인: `open reports/analysis_report_*.html`
+보고서를 GitHub Pages용 docs 폴더에 복사합니다:
+
+```bash
+# index.html 업데이트
+cp reports/analysis_report_YYYY-MM-DD.html docs/index.html
+
+# archive에도 저장
+cp reports/analysis_report_YYYY-MM-DD.html docs/archive/YYYY-MM-DD.html
+```
+
+### Step 9: Git Push
+
+변경사항을 커밋하고 푸시합니다:
+
+```bash
+git add docs/
+git commit -m "Update weekly report: YYYY-MM-DD"
+git push
+```
+
+### Step 10: 완료
+
+사용자에게 다음 정보를 제공합니다:
+
+1. **로컬 파일:** `reports/analysis_report_YYYY-MM-DD.html`
+2. **GitHub Pages URL:** `https://biblessia.github.io/biblessia-analysis/archive/YYYY-MM-DD.html`
+
+GitHub Pages 배포는 push 후 1-2분 정도 소요됩니다.
 
 ## 인사이트 작성 가이드
 
