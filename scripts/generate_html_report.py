@@ -13,13 +13,9 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 
 
 def get_week_title():
-    """지난 주 기준으로 'X월 X주차 보고서' 타이틀 생성"""
-    # 지난 주 기준 (이번 주 데이터는 제외되므로)
-    last_week = datetime.now() - timedelta(days=7)
-    month = last_week.month
-    # 월 기준 주차: (일-1)//7 + 1
-    week_of_month = (last_week.day - 1) // 7 + 1
-    return f"{month}월 {week_of_month}주차 보고서"
+    """현재 월 기준으로 'X월 보고서' 타이틀 생성"""
+    month = datetime.now().month
+    return f"{month}월 보고서"
 
 
 def find_latest_excel():
@@ -739,7 +735,7 @@ def generate_html(data, insights=None, title=None):
 <body>
     <div class="container">
         <header>
-            <div class="report-label">비블레시아 주간 보고서</div>
+            <div class="report-label">비블레시아 월간 보고서</div>
             <h1>{title}</h1>
             <p class="meta">{report_date}</p>
         </header>

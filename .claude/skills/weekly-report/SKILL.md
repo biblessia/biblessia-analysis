@@ -1,15 +1,15 @@
 ---
 name: weekly-report
-description: 비블레시아 주간 분석 보고서 생성. Amplitude 데이터를 수집하고 인사이트가 포함된 HTML 보고서를 자동 생성합니다.
+description: 비블레시아 월간 분석 보고서 생성. Amplitude 데이터를 수집하고 인사이트가 포함된 HTML 보고서를 자동 생성합니다.
 allowed-tools: Bash, Write, Edit, mcp__Amplitude__query_charts
 user-invocable: true
 ---
 
-# 비블레시아 주간 보고서 생성
+# 비블레시아 월간 보고서 생성
 
 "분석 보고서를 작성해줘" 또는 `/weekly-report` 명령으로 실행됩니다.
 
-Amplitude에서 데이터를 수집하고, "비블레시아 X월 X주차 보고서" 형식의 HTML 보고서를 생성합니다.
+Amplitude에서 데이터를 수집하고, "비블레시아 X월 보고서" 형식의 HTML 보고서를 생성합니다.
 
 ## 차트 정보
 
@@ -63,7 +63,7 @@ python scripts/generate_html_report.py -j
 `-j` 옵션으로 JSON 데이터를 확인합니다.
 
 **참고:** 이번 주 데이터는 아직 수집 중이므로 자동으로 제외됩니다.
-보고서 타이틀은 자동으로 "비블레시아 X월 X주차 보고서" 형식으로 생성됩니다.
+보고서 타이틀은 자동으로 "비블레시아 X월 보고서" 형식으로 생성됩니다.
 
 ### Step 5: 데이터 분석 및 인사이트 작성
 
@@ -133,7 +133,7 @@ cp reports/analysis_report_YYYY-MM-DD.html docs/archive/YYYY-MM-DD.html
 
 ```bash
 git add docs/
-git commit -m "Update weekly report: YYYY-MM-DD"
+git commit -m "Update monthly report: YYYY-MM-DD"
 git push
 ```
 
