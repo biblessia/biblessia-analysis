@@ -85,13 +85,13 @@ def extract_all_data(excel_path):
     }
 
     if "WAU" in wb.sheetnames:
-        data["wau"] = extract_timeseries(wb["WAU"])
+        data["wau"] = extract_timeseries(wb["WAU"], exclude_last=False)
 
     if "NAU" in wb.sheetnames:
-        data["nau"] = extract_timeseries(wb["NAU"])
+        data["nau"] = extract_timeseries(wb["NAU"], exclude_last=False)
 
     if "Weekly Retention" in wb.sheetnames:
-        data["retention"] = extract_retention(wb["Weekly Retention"])
+        data["retention"] = extract_retention(wb["Weekly Retention"], exclude_last=False)
 
     return data
 
