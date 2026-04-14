@@ -704,6 +704,47 @@
             </div>
         </div>
 
+        <!-- 후원 분석 섹션 -->
+        <div class="section">
+            <h2>후원 (Sponsorship)</h2>
+            <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="metric-card">
+                    <div class="value">97</div>
+                    <div class="label">누적 후원자</div>
+                    <div class="change neutral">4/3 런칭 이후</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">6.6%</div>
+                    <div class="label">진입→구매 전환율</div>
+                    <div class="change neutral">1,464명 중 97명</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">~156만</div>
+                    <div class="label">추정 누적 매출</div>
+                    <div class="change neutral">KRW</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">90%</div>
+                    <div class="label">묵상 후 진입 비율</div>
+                    <div class="change positive">post_devotional</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="sponsorshipChart"></canvas>
+            </div>
+            <div class="insight-box">
+                <h3>후원 분석</h3>
+                <div id="sponsorship-insight"><p><strong>런칭 12일 만에 97명 후원, 초기 스파이크 이후 일 2~6명 수준으로 안정화.</strong> 4월 3일 기능 오픈 후 첫 3일간 19→14→20명이 구매하며 강한 초기 반응을 보였으나, 이후 빠르게 하락하여 4월 9일부터 일 2~6명 수준에서 안정화되었습니다.</p>
+<ul>
+<li><strong>구매 추이:</strong> 4/4 런칭일 19명(피크) → 4/6 20명 → 4/7 12명 → 4/8 9명 → 4/9~14 일 2~6명. 전형적인 런칭 스파이크 패턴으로, 기존 충성 사용자의 초기 전환이 빠르게 소진된 형태</li>
+<li><strong>금액별 분포:</strong> 5,000원 45건(46%) / 30,000원 37건(38%) / 15,000원 15건(16%). 최저·최고 금액에 집중되는 양극화 패턴. 30,000원 비율이 높아 추정 매출 ~156만원(5K×45 + 15K×15 + 30K×37)</li>
+<li><strong>진입 경로:</strong> post_devotional(묵상 후)이 약 90%로 압도적. profile_footer는 일 10~16명으로 소규모 유지. mailbox_detail은 4/13부터 소량 유입 시작</li>
+<li><strong>전환율:</strong> 후원 화면 진입 1,464명 → 금액 선택 261명(17.8%) → 금액 클릭 138명(9.4%) → 구매 완료 97명(6.6%). 금액 클릭→구매 전환율 70.3%로 매우 높아, 결제 의지가 있는 사용자의 이탈은 적음</li>
+<li><strong>권장 액션:</strong> ① 현재 일 2~6명 페이스가 지속되면 월 60~180명 수준 — 안정적 베이스라인으로 활용 ② post_devotional 외 진입 경로 확대 필요. 특히 mailbox_detail이 아직 초기 단계이므로 노출 강화 검토 ③ 15,000원 선택 비율이 낮은 것은 금액 간 가치 차별화가 불충분할 수 있음 — 티어별 혜택 명확화 고려</li>
+</ul></div>
+            </div>
+        </div>
+
         <footer>
             <p><span class="logo">Biblessia Analytics</span> 제작</p>
         </footer>
@@ -997,6 +1038,56 @@
                             callback: function(value) {
                                 return value + '%';
                             }
+                        }
+                    }
+                }
+            }
+        });
+        // 후원 구매 추이 차트
+        new Chart(document.getElementById('sponsorshipChart'), {
+            type: 'bar',
+            data: {
+                labels: ["4/3","4/4","4/5","4/6","4/7","4/8","4/9","4/10","4/11","4/12","4/13","4/14"],
+                datasets: [{
+                    label: '후원 구매자 수',
+                    data: [2,19,14,20,12,9,4,4,2,3,6,2],
+                    backgroundColor: 'rgba(0, 212, 170, 0.6)',
+                    borderColor: '#00d4aa',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#a0a0a0',
+                        borderColor: '#333333',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + '명';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#a0a0a0', font: { size: 11 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#1a1a1a' },
+                        ticks: {
+                            color: '#a0a0a0',
+                            callback: function(value) { return value + '명'; }
                         }
                     }
                 }
