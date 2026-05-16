@@ -72,6 +72,17 @@ def extract_retention(ws, exclude_last=True):
     return data
 
 
+def extract_wau_by_region(ws):
+    """WAU 지역별 데이터 추출 (한국 vs 한국 외)"""
+    data = {"dates": [], "korea": [], "non_korea": []}
+    for row in ws.iter_rows(min_row=4, values_only=True):
+        if row[0] and row[1] is not None and row[2] is not None:
+            data["dates"].append(str(row[0]))
+            data["korea"].append(row[1])
+            data["non_korea"].append(row[2])
+    return data
+
+
 def extract_all_data(excel_path):
     """모든 시트에서 데이터 추출"""
     wb = load_workbook(excel_path, data_only=True)
@@ -80,12 +91,16 @@ def extract_all_data(excel_path):
         "file": excel_path.name,
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "wau": None,
+        "wau_by_region": None,
         "nau": None,
         "retention": None
     }
 
     if "WAU" in wb.sheetnames:
         data["wau"] = extract_timeseries(wb["WAU"], exclude_last=False)
+
+    if "WAU by Region" in wb.sheetnames:
+        data["wau_by_region"] = extract_wau_by_region(wb["WAU by Region"])
 
     if "NAU" in wb.sheetnames:
         data["nau"] = extract_timeseries(wb["NAU"], exclude_last=False)
@@ -113,10 +128,13 @@ def generate_html(data, insights=None, title=None):
         insights = {
             "summary": "<!-- SUMMARY_INSIGHT -->",
             "wau": "<!-- WAU_INSIGHT -->",
+            "wau_region": "<!-- WAU_REGION_INSIGHT -->",
             "nau": "<!-- NAU_INSIGHT -->",
             "retention": "<!-- RETENTION_INSIGHT -->",
             "retention_over_time": "<!-- RETENTION_OVER_TIME_INSIGHT -->"
         }
+    # 하위 호환: wau_region 키 누락 시 placeholder
+    insights.setdefault("wau_region", "<!-- WAU_REGION_INSIGHT -->")
 
     # WAU/NAU 차트 데이터 - 날짜 포맷 간소화
     wau_labels_short = []
@@ -141,6 +159,42 @@ def generate_html(data, insights=None, title=None):
     wau_values = json.dumps(data["wau"]["values"]) if data["wau"] else "[]"
     nau_labels = json.dumps(nau_labels_short) if data["nau"] else "[]"
     nau_values = json.dumps(data["nau"]["values"]) if data["nau"] else "[]"
+
+    # WAU 지역별 차트 데이터
+    region_labels_short = []
+    region_korea = []
+    region_non_korea = []
+    region_non_korea_share = []
+    if data.get("wau_by_region"):
+        for d in data["wau_by_region"]["dates"]:
+            try:
+                dt = datetime.strptime(d, "%Y-%m-%d")
+                region_labels_short.append(dt.strftime("%b %d"))
+            except Exception:
+                region_labels_short.append(d)
+        region_korea = data["wau_by_region"]["korea"]
+        region_non_korea = data["wau_by_region"]["non_korea"]
+        for k, nk in zip(region_korea, region_non_korea):
+            total = (k or 0) + (nk or 0)
+            region_non_korea_share.append(round((nk / total * 100), 2) if total else 0)
+
+    region_labels = json.dumps(region_labels_short)
+    region_korea_json = json.dumps(region_korea)
+    region_non_korea_json = json.dumps(region_non_korea)
+    region_non_korea_share_json = json.dumps(region_non_korea_share)
+
+    # 최신/이전 지역별 통계
+    if region_korea and region_non_korea:
+        latest_korea = region_korea[-1]
+        latest_non_korea = region_non_korea[-1]
+        prev_korea = region_korea[-2] if len(region_korea) >= 2 else latest_korea
+        prev_non_korea = region_non_korea[-2] if len(region_non_korea) >= 2 else latest_non_korea
+        latest_non_korea_share = region_non_korea_share[-1]
+        non_korea_wow = ((latest_non_korea - prev_non_korea) / prev_non_korea * 100) if prev_non_korea else 0
+        korea_wow = ((latest_korea - prev_korea) / prev_korea * 100) if prev_korea else 0
+    else:
+        latest_korea = latest_non_korea = prev_korea = prev_non_korea = 0
+        latest_non_korea_share = non_korea_wow = korea_wow = 0
 
     # Summary 계산
     if data["wau"] and len(data["wau"]["values"]) >= 2:
@@ -583,6 +637,61 @@ def generate_html(data, insights=None, title=None):
             border-radius: 12px;
         }}
 
+        /* Region Stats (Korea vs Non-Korea) */
+        .region-stats {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 16px;
+        }}
+
+        @media (max-width: 768px) {{
+            .region-stats {{
+                grid-template-columns: 1fr;
+            }}
+        }}
+
+        .region-stat-card {{
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }}
+
+        .region-stat-card .region-label {{
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }}
+
+        .region-stat-card .region-value {{
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+        }}
+
+        .region-stat-card .region-unit {{
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }}
+
+        .region-stat-card .region-change {{
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }}
+
+        .region-stat-card .region-change.positive {{ color: var(--positive); }}
+        .region-stat-card .region-change.negative {{ color: var(--negative); }}
+
         /* Tables */
         table {{
             width: 100%;
@@ -792,6 +901,38 @@ def generate_html(data, insights=None, title=None):
             </div>
         </div>
 
+        <!-- WAU 지역별 분석 섹션 (글로벌 오픈 후) -->
+        <div class="section">
+            <h2>WAU 지역별 분석 (한국 vs 한국 외)</h2>
+            <div class="region-stats">
+                <div class="region-stat-card">
+                    <div class="region-label">한국</div>
+                    <div class="region-value">{latest_korea:,}<span class="region-unit">명</span></div>
+                    <div class="region-change {"positive" if korea_wow >= 0 else "negative"}">전주 대비 {korea_wow:+.1f}%</div>
+                </div>
+                <div class="region-stat-card">
+                    <div class="region-label">한국 외 (글로벌)</div>
+                    <div class="region-value">{latest_non_korea:,}<span class="region-unit">명</span></div>
+                    <div class="region-change {"positive" if non_korea_wow >= 0 else "negative"}">전주 대비 {non_korea_wow:+.1f}%</div>
+                </div>
+                <div class="region-stat-card">
+                    <div class="region-label">한국 외 비중</div>
+                    <div class="region-value">{latest_non_korea_share:.2f}<span class="region-unit">%</span></div>
+                    <div class="region-change">전체 WAU 중 한국 외 사용자</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="wauRegionChart"></canvas>
+            </div>
+            <div class="chart-container" style="margin-top: 24px;">
+                <canvas id="wauRegionShareChart"></canvas>
+            </div>
+            <div class="insight-box">
+                <h3>지역별 WAU 분석</h3>
+                <div id="wau-region-insight">{insights["wau_region"]}</div>
+            </div>
+        </div>
+
         <!-- NAU 섹션 -->
         <div class="section">
             <h2>NAU (주간 신규 사용자)</h2>
@@ -910,6 +1051,145 @@ def generate_html(data, insights=None, title=None):
                         beginAtZero: true,
                         grid: {{ color: '#1a1a1a' }},
                         ticks: {{ font: {{ size: 11 }} }}
+                    }}
+                }}
+            }}
+        }});
+
+        // WAU 지역별 차트 (한국 vs 한국 외) - 듀얼 Y축 (한국 외는 우측 축)
+        new Chart(document.getElementById('wauRegionChart'), {{
+            type: 'line',
+            data: {{
+                labels: {region_labels},
+                datasets: [
+                    {{
+                        label: '한국',
+                        data: {region_korea_json},
+                        borderColor: '#ffffff',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        fill: false,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#0a0a0a',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        yAxisID: 'y'
+                    }},
+                    {{
+                        label: '한국 외',
+                        data: {region_non_korea_json},
+                        borderColor: '#00d4aa',
+                        backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                        fill: false,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        borderDash: [4, 4],
+                        pointBackgroundColor: '#00d4aa',
+                        pointBorderColor: '#0a0a0a',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        yAxisID: 'y1'
+                    }}
+                ]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {{ intersect: false, mode: 'index' }},
+                plugins: {{
+                    legend: {{
+                        display: true,
+                        labels: {{ color: '#a0a0a0', font: {{ size: 12 }} }}
+                    }},
+                    tooltip: {{
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#a0a0a0',
+                        borderColor: '#333333',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12
+                    }}
+                }},
+                scales: {{
+                    x: {{
+                        grid: {{ color: '#1a1a1a' }},
+                        ticks: {{ maxRotation: 45, font: {{ size: 11 }} }}
+                    }},
+                    y: {{
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: true,
+                        grid: {{ color: '#1a1a1a' }},
+                        ticks: {{ font: {{ size: 11 }}, color: '#ffffff' }},
+                        title: {{ display: true, text: '한국 (명)', color: '#ffffff', font: {{ size: 11 }} }}
+                    }},
+                    y1: {{
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {{ drawOnChartArea: false }},
+                        ticks: {{ font: {{ size: 11 }}, color: '#00d4aa' }},
+                        title: {{ display: true, text: '한국 외 (명)', color: '#00d4aa', font: {{ size: 11 }} }}
+                    }}
+                }}
+            }}
+        }});
+
+        // WAU 한국 외 비중 추이
+        new Chart(document.getElementById('wauRegionShareChart'), {{
+            type: 'line',
+            data: {{
+                labels: {region_labels},
+                datasets: [{{
+                    label: '한국 외 비중 (%)',
+                    data: {region_non_korea_share_json},
+                    borderColor: '#00d4aa',
+                    backgroundColor: 'rgba(0, 212, 170, 0.08)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#00d4aa',
+                    pointBorderColor: '#0a0a0a',
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }}]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {{ intersect: false, mode: 'index' }},
+                plugins: {{
+                    legend: {{ display: false }},
+                    tooltip: {{
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#a0a0a0',
+                        borderColor: '#333333',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {{
+                            label: function(context) {{ return context.parsed.y.toFixed(2) + '%'; }}
+                        }}
+                    }}
+                }},
+                scales: {{
+                    x: {{
+                        grid: {{ color: '#1a1a1a' }},
+                        ticks: {{ maxRotation: 45, font: {{ size: 11 }} }}
+                    }},
+                    y: {{
+                        beginAtZero: true,
+                        grid: {{ color: '#1a1a1a' }},
+                        ticks: {{
+                            font: {{ size: 11 }},
+                            callback: function(value) {{ return value + '%'; }}
+                        }}
                     }}
                 }}
             }}
