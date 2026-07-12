@@ -681,9 +681,13 @@
             <div class="chart-container">
                 <canvas id="retentionCurveChart"></canvas>
             </div>
+            <p style="font-size: 12.5px; color: #6b6b6b; margin: 10px 4px 0;">
+                ※ 점선 구간은 관측 코호트가 3개 미만인 저신뢰 구간입니다. 오래된 소수 코호트만으로 계산되어
+                특정 코호트의 개성이 곡선을 좌우하므로, 장기 리텐션 판단은 실선 구간과 코호트별 곡선을 기준으로 하세요.
+            </p>
             <div class="insight-box">
                 <h3>리텐션 분석</h3>
-                <div id="retention-insight"><p><strong>유입이 2배로 늘었는데 리텐션이 흔들리지 않았다 — 이번 달 데이터에서 가장 중요한 사실.</strong> 통상 유입이 급증하면 콜드 트래픽 비중이 늘며 리텐션이 하락하는데, 6월 급증 코호트들의 Week 1은 56~61%로 평시 박스권(53~64%)을 그대로 지켰습니다. 특히 역대 최대 코호트인 Jun 08(612명)의 Week 4가 37.9%로 전체 평균(38.5%)과 사실상 동일합니다. 이는 새 유입이 광고성 유입이 아니라 <strong>따뜻한 경로(지인·공동체 추천)로 들어온 사용자</strong>임을 강하게 시사합니다.</p><ul><li><strong>Week 1:</strong> 58.61% (전월 58.38%) — 업계 상단 유지</li><li><strong>Week 4:</strong> 38.45% / <strong>Week 8:</strong> 28.03% — 견조</li><li><strong>급증 코호트 Week 1:</strong> Jun 08 56.4% → Jun 15 59.2% → Jun 22 59.0% → Jun 29 61.0%</li><li><strong>Jun 08 코호트(612명) Week 4:</strong> 37.9% — 전체 평균과 동일, 대량 유입의 질 검증 완료</li></ul><p>전월 보고서의 전제 — "지금 유입량을 2배로 늘려도 리텐션이 받쳐줄 가능성이 높다" — 가 실전에서 검증됐습니다. Week 8 기준 약 28%의 사용자가 남는 구조에서, 6월 유입 코호트(약 2,100명)만으로도 8주 뒤 약 590명의 신규 코어층이 형성될 전망입니다. 리텐션은 계속 '관리'가 아닌 '관찰' 대상으로 두고, 자원은 유입 채널 규명과 확대에 집중하는 것이 맞습니다.</p></div>
+                <div id="retention-insight"><p><strong>유입이 2배로 늘었는데 리텐션이 흔들리지 않았다 — 이번 달 데이터에서 가장 중요한 사실.</strong> 통상 유입이 급증하면 콜드 트래픽 비중이 늘며 리텐션이 하락하는데, 6월 급증 코호트들의 Week 1은 56~61%로 평시 박스권(53~64%)을 그대로 지켰습니다. 특히 역대 최대 코호트인 Jun 08(612명)의 Week 4가 37.9%로 전체 평균(38.5%)과 사실상 동일합니다. 이는 새 유입이 광고성 유입이 아니라 <strong>따뜻한 경로(지인·공동체 추천)로 들어온 사용자</strong>임을 강하게 시사합니다.</p><ul><li><strong>Week 1:</strong> 58.61% (전월 58.38%) — 업계 상단 유지</li><li><strong>Week 4:</strong> 38.45% / <strong>Week 8:</strong> 28.03% — 견조</li><li><strong>급증 코호트 Week 1:</strong> Jun 08 56.4% → Jun 15 59.2% → Jun 22 59.0% → Jun 29 61.0%</li><li><strong>Jun 08 코호트(612명) Week 4:</strong> 37.9% — 전체 평균과 동일, 대량 유입의 질 검증 완료</li></ul><p>전월 보고서의 전제 — "지금 유입량을 2배로 늘려도 리텐션이 받쳐줄 가능성이 높다" — 가 실전에서 검증됐습니다. Week 8 기준 약 28%의 사용자가 남는 구조에서, 6월 유입 코호트(약 2,100명)만으로도 8주 뒤 약 590명의 신규 코어층이 형성될 전망입니다. 리텐션은 계속 '관리'가 아닌 '관찰' 대상으로 두고, 자원은 유입 채널 규명과 확대에 집중하는 것이 맞습니다. 참고로 곡선 꼬리(W13 이후)의 하락은 관측 코호트가 2~3개로 줄면서 3월 저점 코호트가 꼬리를 지배하는 구성 편향이며 — 이번 보고서부터 해당 구간을 점선으로 구분 표시합니다.</p></div>
             </div>
             <button class="collapsible" onclick="toggleCollapsible(this)">원본 데이터 보기</button>
             <div class="collapsible-content">
@@ -727,7 +731,7 @@
             </div>
             <div class="insight-box">
                 <h3>리텐션 트렌드 분석</h3>
-                <div id="retention-over-time-insight"><p><strong>Week 1 리텐션이 4개월째 53~67% 박스권에서 안정 — 대량 유입 구간에서도 추세 이탈 없음, 오히려 최근 코호트가 우상향.</strong> 코호트별 Week 1을 시계열로 보면 Mar 30 저점(45.9%) 이후 회복된 흐름이 완전히 정착했고, 최근 4개 완전 코호트는 56.4% → 59.2% → 59.0% → 61.0%로 미세한 상승 추세까지 보입니다. 유입 규모가 2배로 뛴 구간에서 리텐션이 오히려 개선 방향인 것은 이례적으로 좋은 신호입니다.</p><ul><li><strong>최근 4개 완전 코호트 Week 1:</strong> Jun 08 56.4% → Jun 15 59.2% → Jun 22 59.0% → Jun 29 61.0%</li><li><strong>저점 대비:</strong> Mar 30 45.9% → Jun 29 61.0% (+15.1pp)</li><li><strong>장기 코호트 확인:</strong> Apr 06 코호트 Week 13 = 24.5%(88/359) — 3개월+ 생존율 유지</li></ul><p>전월 "V자 회복 정착" 진단이 한 달 더 유지됐고, 이제 관전 포인트는 하나입니다: <strong>6월 대량 유입 코호트들이 Week 8(8월 초~중순 관측)에도 27~30%를 지키는지.</strong> 지켜진다면 6월의 성장은 일시적 파도가 아니라 코어층의 계단식 확대로 확정되며, WAU 5,000명대 진입의 토대가 됩니다.</p></div>
+                <div id="retention-over-time-insight"><p><strong>Week 1 리텐션이 4개월째 53~67% 박스권에서 안정 — 대량 유입 구간에서도 추세 이탈 없음, 오히려 최근 코호트가 우상향.</strong> 코호트별 Week 1을 시계열로 보면 Mar 30 저점(45.9%) 이후 회복된 흐름이 완전히 정착했고, 최근 4개 완전 코호트는 56.4% → 59.2% → 59.0% → 61.0%로 미세한 상승 추세까지 보입니다. 유입 규모가 2배로 뛴 구간에서 리텐션이 오히려 개선 방향인 것은 이례적으로 좋은 신호입니다.</p><ul><li><strong>최근 4개 완전 코호트 Week 1:</strong> Jun 08 56.4% → Jun 15 59.2% → Jun 22 59.0% → Jun 29 61.0%</li><li><strong>저점 대비:</strong> Mar 30 45.9% → Jun 29 61.0% (+15.1pp)</li><li><strong>장기 코호트 확인:</strong> Apr 06 코호트 Week 13 = 24.5%(88/359), May 04 코호트 W7~W10 ~32%에서 평탄 — 코호트별 안착점 형성 확인</li></ul><p>전월 "V자 회복 정착" 진단이 한 달 더 유지됐고, 이제 관전 포인트는 하나입니다: <strong>6월 대량 유입 코호트들이 Week 8(8월 초~중순 관측)에도 27~30%를 지키는지.</strong> 지켜진다면 6월의 성장은 일시적 파도가 아니라 코어층의 계단식 확대로 확정되며, WAU 5,000명대 진입의 토대가 됩니다.</p></div>
             </div>
         </div>
 
@@ -994,6 +998,9 @@
         });
 
         // 주간 리텐션 곡선 (전체 주차별 리텐션)
+        // 관측 코호트 수가 적은 꼬리 구간(<3개)은 점선·흐린 색으로 구분 (구성 편향 착시 방지)
+        const retCurveCoverage = [15, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+        const RET_LOW_COVERAGE = 3;
         new Chart(document.getElementById('retentionCurveChart'), {
             type: 'line',
             data: {
@@ -1006,8 +1013,12 @@
                     fill: true,
                     tension: 0.4,
                     borderWidth: 2,
-                    pointBackgroundColor: '#a0a0a0',
-                    pointBorderColor: '#0a0a0a',
+                    segment: {
+                        borderDash: ctx => (retCurveCoverage[ctx.p1DataIndex] !== undefined && retCurveCoverage[ctx.p1DataIndex] < RET_LOW_COVERAGE) ? [5, 6] : undefined,
+                        borderColor: ctx => (retCurveCoverage[ctx.p1DataIndex] !== undefined && retCurveCoverage[ctx.p1DataIndex] < RET_LOW_COVERAGE) ? 'rgba(160, 160, 160, 0.35)' : undefined
+                    },
+                    pointBackgroundColor: ctx => (retCurveCoverage[ctx.dataIndex] !== undefined && retCurveCoverage[ctx.dataIndex] < RET_LOW_COVERAGE) ? '#0a0a0a' : '#a0a0a0',
+                    pointBorderColor: ctx => (retCurveCoverage[ctx.dataIndex] !== undefined && retCurveCoverage[ctx.dataIndex] < RET_LOW_COVERAGE) ? 'rgba(160, 160, 160, 0.45)' : '#0a0a0a',
                     pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 7
@@ -1032,7 +1043,15 @@
                         padding: 12,
                         callbacks: {
                             label: function(context) {
-                                return context.parsed.y + '%';
+                                const cov = retCurveCoverage[context.dataIndex];
+                                let label = context.parsed.y + '%';
+                                if (cov !== undefined) {
+                                    label += ' · 관측 코호트 ' + cov + '개';
+                                    if (cov < RET_LOW_COVERAGE) {
+                                        label += ' (저신뢰 구간)';
+                                    }
+                                }
+                                return label;
                             }
                         }
                     }

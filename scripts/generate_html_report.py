@@ -239,6 +239,24 @@ def generate_html(data, insights=None, title=None):
                         retention_curve_values.append(float(str(val).replace("%", "")))
                 break
 
+    # 주차별 관측 코호트 수 계산 — Overall 곡선의 꼬리는 오래된 소수 코호트만으로 계산되므로
+    # 코호트 수가 적은 구간(<3)은 차트에서 저신뢰(점선) 구간으로 구분 표시한다 (구성 편향 착시 방지)
+    retention_curve_coverage = []
+    if data["retention"] and retention_curve_values:
+        cohort_rows = [
+            row for row in data["retention"]["rows"]
+            if "Overall" not in str(row[1]) and "Start Date" not in str(row[1])
+            and len(row) > 3 and isinstance(row[3], (int, float))
+        ]
+        for i in range(len(retention_curve_values)):
+            col_idx = 3 + i
+            count = sum(
+                1 for row in cohort_rows
+                if len(row) > col_idx and row[col_idx] not in (None, "")
+                and isinstance(row[col_idx], (int, float))
+            )
+            retention_curve_coverage.append(count)
+
         # 최근 코호트 중 Week 1 데이터가 valid한 것 찾기
         # 가장 최신 코호트의 Week 1은 아직 수집 중이므로 두 번째 코호트를 사용
         valid_week1_cohorts = []
@@ -960,6 +978,10 @@ def generate_html(data, insights=None, title=None):
             <div class="chart-container">
                 <canvas id="retentionCurveChart"></canvas>
             </div>
+            <p style="font-size: 12.5px; color: #6b6b6b; margin: 10px 4px 0;">
+                ※ 점선 구간은 관측 코호트가 3개 미만인 저신뢰 구간입니다. 오래된 소수 코호트만으로 계산되어
+                특정 코호트의 개성이 곡선을 좌우하므로, 장기 리텐션 판단은 실선 구간과 코호트별 곡선을 기준으로 하세요.
+            </p>
             <div class="insight-box">
                 <h3>리텐션 분석</h3>
                 <div id="retention-insight">{insights["retention"]}</div>
@@ -1249,6 +1271,9 @@ def generate_html(data, insights=None, title=None):
         }});
 
         // 주간 리텐션 곡선 (전체 주차별 리텐션)
+        // 관측 코호트 수가 적은 꼬리 구간(<3개)은 점선·흐린 색으로 구분 (구성 편향 착시 방지)
+        const retCurveCoverage = {json.dumps(retention_curve_coverage)};
+        const RET_LOW_COVERAGE = 3;
         new Chart(document.getElementById('retentionCurveChart'), {{
             type: 'line',
             data: {{
@@ -1261,8 +1286,12 @@ def generate_html(data, insights=None, title=None):
                     fill: true,
                     tension: 0.4,
                     borderWidth: 2,
-                    pointBackgroundColor: '#a0a0a0',
-                    pointBorderColor: '#0a0a0a',
+                    segment: {{
+                        borderDash: ctx => (retCurveCoverage[ctx.p1DataIndex] !== undefined && retCurveCoverage[ctx.p1DataIndex] < RET_LOW_COVERAGE) ? [5, 6] : undefined,
+                        borderColor: ctx => (retCurveCoverage[ctx.p1DataIndex] !== undefined && retCurveCoverage[ctx.p1DataIndex] < RET_LOW_COVERAGE) ? 'rgba(160, 160, 160, 0.35)' : undefined
+                    }},
+                    pointBackgroundColor: ctx => (retCurveCoverage[ctx.dataIndex] !== undefined && retCurveCoverage[ctx.dataIndex] < RET_LOW_COVERAGE) ? '#0a0a0a' : '#a0a0a0',
+                    pointBorderColor: ctx => (retCurveCoverage[ctx.dataIndex] !== undefined && retCurveCoverage[ctx.dataIndex] < RET_LOW_COVERAGE) ? 'rgba(160, 160, 160, 0.45)' : '#0a0a0a',
                     pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 7
@@ -1287,7 +1316,15 @@ def generate_html(data, insights=None, title=None):
                         padding: 12,
                         callbacks: {{
                             label: function(context) {{
-                                return context.parsed.y + '%';
+                                const cov = retCurveCoverage[context.dataIndex];
+                                let label = context.parsed.y + '%';
+                                if (cov !== undefined) {{
+                                    label += ' · 관측 코호트 ' + cov + '개';
+                                    if (cov < RET_LOW_COVERAGE) {{
+                                        label += ' (저신뢰 구간)';
+                                    }}
+                                }}
+                                return label;
                             }}
                         }}
                     }}
