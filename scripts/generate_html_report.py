@@ -229,9 +229,11 @@ def generate_html(data, insights=None, title=None):
                     week1_retention = f"{round(week1_retention_val)}%"
                 else:
                     week1_retention = "-"
-                # 리텐션 곡선 데이터 추출 (W14까지만)
+                # 리텐션 곡선 데이터 추출 (W12까지만 — 월간 건강검진 범위.
+                # W13+ 는 16주 윈도우에서 항상 코호트 2~3개짜리 저신뢰 구간이라 월간 곡선에서 제외.
+                # 장기 안착점(asymptote) 판단은 코호트별 곡선/분기 회고에서 다룬다)
                 for i, val in enumerate(row[3:]):
-                    if i > 14:  # W14까지만 (W0 ~ W14 = 15개)
+                    if i > 12:  # W12까지만 (W0 ~ W12 = 13개)
                         break
                     if val and "%" in str(val):
                         retention_curve_labels.append(f"W{i}")
@@ -979,8 +981,9 @@ def generate_html(data, insights=None, title=None):
                 <canvas id="retentionCurveChart"></canvas>
             </div>
             <p style="font-size: 12.5px; color: #6b6b6b; margin: 10px 4px 0;">
-                ※ 점선 구간은 관측 코호트가 3개 미만인 저신뢰 구간입니다. 오래된 소수 코호트만으로 계산되어
-                특정 코호트의 개성이 곡선을 좌우하므로, 장기 리텐션 판단은 실선 구간과 코호트별 곡선을 기준으로 하세요.
+                ※ 곡선은 월간 건강검진 범위인 W12(3개월)까지 표시합니다. 그 이후는 관측 코호트가 적어
+                특정 코호트의 개성이 곡선을 좌우하는 저신뢰 구간이라 제외하며(코호트 3개 미만 구간은 점선),
+                장기 안착점 판단은 코호트별 곡선과 분기 회고에서 다룹니다.
             </p>
             <div class="insight-box">
                 <h3>리텐션 분석</h3>
